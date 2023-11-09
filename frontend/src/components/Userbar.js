@@ -17,7 +17,7 @@ function Userbar() {
 
     useEffect(() => {
         async function fetchCredits() {
-            const response = await fetch('/api/credits', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/credits`, {
                 headers: {
                     'Authorization': `Bearer ${user.token}`
                 }
@@ -30,7 +30,7 @@ function Userbar() {
             }
         }
         async function fetchBP() {
-            const response = await fetch('/api/battlePokemon', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/battlePokemon`, {
                 headers: {
                     'Authorization': `Bearer ${user.token}`
                 }
@@ -54,7 +54,7 @@ function Userbar() {
 
     async function updateBP(ccard) {
         console.log('ccard.card', ccard.card)
-        const response = await fetch('/api/battlepokemon', {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/battlepokemon`, {
             method: 'PATCH',
             body: JSON.stringify({card: ccard.card}),
             headers: {
@@ -75,7 +75,7 @@ function Userbar() {
     async function fetchCard(e) {
         const val = e.target.value
         //console.log('e1', e.target.value)
-        const response = await fetch(`/api/cards/${e.target.value}`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/cards/${e.target.value}`, {
             headers: {
                 'Authorization': `Bearer ${user.token}`
             }

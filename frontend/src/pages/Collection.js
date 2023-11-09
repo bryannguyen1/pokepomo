@@ -11,7 +11,7 @@ function Collection() {
 
     useEffect(() => {
         // async function fetchCards() {
-        //     const response = await fetch('/api/cards', {
+        //     const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/cards', {
         //         headers: {
         //             'Authorization': `Bearer ${user.token}`
         //         }

@@ -29,7 +29,7 @@ function Packs() {
     // add card to DB, used in handleClick functions
     async function addCard(card) {
         console.log("card", card)
-        const response = await fetch('/api/cards', {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/cards`, {
             method: 'POST',
             body: JSON.stringify({card}),
             headers: {
@@ -46,7 +46,7 @@ function Packs() {
 
     // add credits to DB, used in handleClick functions
     async function addCredits(num) {
-        const response = await fetch('/api/credits', {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/credits`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',

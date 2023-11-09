@@ -23,7 +23,7 @@ function Stopwatch() {
   };
 
   async function addCredits(num) {
-    const response = await fetch('/api/credits', {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/credits`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

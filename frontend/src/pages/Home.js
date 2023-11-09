@@ -17,11 +17,11 @@ function Home() {
     const {user} = useAuthContext()
 
     useEffect(() => {
-        // fetch('https://api.pokemontcg.io/v2/cards/base1-4')
+        // fetch(`${process.env.REACT_APP_BACKEND}https://api.pokemontcg.io/v2/cards/base1-4')
         // .then(response => response.json())
         // .then(data => setCard(data.data.images.small));
         async function fetchTasks() {
-            const response = await fetch('/api/tasks', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/tasks`, {
                 headers: {
                     'Authorization': `Bearer ${user.token}`
                 }
@@ -34,7 +34,7 @@ function Home() {
             }
         }
         async function fetchCards() {
-            const response = await fetch('/api/cards', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/cards`, {
                 headers: {
                     'Authorization': `Bearer ${user.token}`
                 }
