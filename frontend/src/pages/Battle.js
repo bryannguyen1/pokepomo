@@ -54,31 +54,33 @@ function Battle() {
 
     useEffect(() => {   // game logic
         // if (cards.length > 0 && opponentCards.length > 0)
-        
-        switch(keyNum) {
-            case 0:
-                if (Number(cards[0].card.hp) > Number(opponentCards[0].card.hp)) {
-                    setYouWin(true)
-                } else {
-                    setYouWin(false)
-                }
-                break
-            case 1:
-                if (Number(cards[0].card.number) > Number(opponentCards[0].card.number)) {
-                    setYouWin(true)
-                } else {
-                    setYouWin(false)
-                }
-                break
-            case 2:
-                if (Number(cards[0].card.nationalPokedexNumbers[0]) > Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
-                    setYouWin(true)
-                } else {
-                    setYouWin(false)
-                }
-                break
-            default:
-                break
+        console.log('card', keyNum, cards, opponentCards)
+        if (cards.length > 0 && opponentCards.length > 0) {
+            switch(keyNum) {
+                case 0:
+                    if (Number(cards[0].card.hp) > Number(opponentCards[0].card.hp)) {
+                        setYouWin(true)
+                    } else {
+                        setYouWin(false)
+                    }
+                    break
+                case 1:
+                    if (Number(cards[0].card.number) > Number(opponentCards[0].card.number)) {
+                        setYouWin(true)
+                    } else {
+                        setYouWin(false)
+                    }
+                    break
+                case 2:
+                    if (Number(cards[0].card.nationalPokedexNumbers[0]) > Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
+                        setYouWin(true)
+                    } else {
+                        setYouWin(false)
+                    }
+                    break
+                default:
+                    break
+            }
         }
     }, [cards, keyNum, opponentCards])
 
