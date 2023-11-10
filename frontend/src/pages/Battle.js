@@ -22,27 +22,24 @@ function Battle() {
     const [cards, setCards] = useState([])
     const [roomFull, setRoomFull] = useState(false)
     const [ready, setReady] = useState(false)
-    const [youWin, setYouWin] = useState(null)
+    const [youWin, setYouWin] = useState(-1)
     const [keyNum, setKeyNum] = useState(-1)
+    const [compareNum, setCompareNum] = useState(-1)
 
     const [opponentCards, setOpponentCards] = useState([])
 
     const winKeys = ['HP', 'Number', 'Pokedex']
+    const results = ['Loss', 'Win']
+    const cmp = ['lesser', 'greater']
     
     useEffect(() => {
-        socket.emit("custom-event", 10, 'hi')
-        //console.log('collection: ', collection)
-        socket.on("receive-card", card => {
-            console.log("RECEIVED CARD")
-            //setCards(cards => [...cards, card])
-            setCards([card])
-        })
         socket.on('join-full', () => {
             setError('Room is full')
         })
-        socket.on('full', (num) => {
-            console.log('NUM IS ', num)
-            setKeyNum(num)
+        socket.on('full', (attr, compare) => {
+            console.log('compare', compare)
+            setKeyNum(attr)
+            setCompareNum(compare)
             setRoomFull(true)
             //socket.emit('ready', room, cards)
         })
@@ -54,35 +51,71 @@ function Battle() {
 
     useEffect(() => {   // game logic
         // if (cards.length > 0 && opponentCards.length > 0)
-        console.log('card', keyNum, cards, opponentCards)
-        if (cards.length > 0 && opponentCards.length > 0) {
+        console.log('compareNum', compareNum)
+        if (cards.length > 0 && opponentCards.length > 0 && compareNum > -1) {
             switch(keyNum) {
                 case 0:
-                    if (Number(cards[0].card.hp) > Number(opponentCards[0].card.hp)) {
-                        setYouWin(true)
+                    if (Number(cards[0].card.hp) == Number(opponentCards[0].card.hp)) {
+                        setYouWin(2)
                     } else {
-                        setYouWin(false)
+                        if (compareNum == 0) {
+                            if (Number(cards[0].card.hp) > Number(opponentCards[0].card.hp)) {
+                                setYouWin(0)
+                            } else {
+                                setYouWin(1)
+                            }
+                        } else {
+                            if (Number(cards[0].card.hp) > Number(opponentCards[0].card.hp)) {
+                                setYouWin(1)
+                            } else {
+                                setYouWin(0)
+                            }
+                        }
                     }
                     break
                 case 1:
-                    if (Number(cards[0].card.number) > Number(opponentCards[0].card.number)) {
-                        setYouWin(true)
+                    if (Number(cards[0].card.number) == Number(opponentCards[0].card.number)) {
+                        setYouWin(2)
                     } else {
-                        setYouWin(false)
+                        if (compareNum == 0) {
+                            if (Number(cards[0].card.number) > Number(opponentCards[0].card.number)) {
+                                setYouWin(0)
+                            } else {
+                                setYouWin(1)
+                            }
+                        } else {
+                            if (Number(cards[0].card.number) > Number(opponentCards[0].card.number)) {
+                                setYouWin(1)
+                            } else {
+                                setYouWin(0)
+                            }
+                        }
                     }
                     break
                 case 2:
-                    if (Number(cards[0].card.nationalPokedexNumbers[0]) > Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
-                        setYouWin(true)
+                    if (Number(cards[0].card.nationalPokedexNumbers[0]) == Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
+                        setYouWin(2)
                     } else {
-                        setYouWin(false)
+                        if (compareNum == 0) {
+                            if (Number(cards[0].card.nationalPokedexNumbers[0]) > Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
+                                setYouWin(0)
+                            } else {
+                                setYouWin(1)
+                            }
+                        } else {
+                            if (Number(cards[0].card.nationalPokedexNumbers[0]) > Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
+                                setYouWin(1)
+                            } else {
+                                setYouWin(0)
+                            }
+                        }
                     }
                     break
                 default:
                     break
             }
         }
-    }, [cards, keyNum, opponentCards])
+    }, [cards, keyNum, compareNum, opponentCards])
 
     useEffect(() => {
         async function addCredits(num) {
@@ -102,9 +135,9 @@ function Battle() {
                 creditsDispatch({type: 'SET_CREDITS', payload: json.credits})
             }
         }
-        if (youWin === true) {
+        if (youWin == 1) {
             addCredits(20)
-        } else if (youWin === false) {
+        } else if (youWin == 0) {
             addCredits(-20)
         }
     }, [creditsDispatch, user.token, youWin])
@@ -180,15 +213,9 @@ function Battle() {
                         })}
                     </div>
 
-                    { youWin && opponentCards.length > 0 &&
+                    { cards.length > 0 && opponentCards.length > 0 && compareNum > -1 && youWin > -1 &&
                         <h2>
-                            WWW based on greater {winKeys[keyNum]}
-                        </h2>
-                    }
-
-                    { !youWin && opponentCards.length > 0 &&
-                        <h2>
-                            LLL based on greater {winKeys[keyNum]}
+                            {(youWin == 1 ? 'Win' : youWin == 0 ? 'Loss' : 'Tie')} based on {cmp[compareNum]} {winKeys[keyNum]}
                         </h2>
                     }
 

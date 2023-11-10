@@ -52,9 +52,6 @@ mongoose.connect(process.env.MONGO_URI)
         })
         io.on('connection', socket => {
             console.log(socket.id)
-            socket.on("custom-event", (number, string) => {
-                console.log(number, string)
-            })
             socket.on('join-room', (room, bp, setCards) => {
                 const getRoom = io.sockets.adapter.rooms.get(room)
                 if (getRoom === undefined) { // no one has joined yet
@@ -67,8 +64,9 @@ mongoose.connect(process.env.MONGO_URI)
                     //socket.to(room).emit("receive-card", collection[0])
                     //setCards(cards => [...cards, collection[0]])
                     setCards([bp])
-                    let num = Math.floor(Math.random() * 3) // [0, 3) = 3 attributes
-                    io.sockets.in(room).emit('full', num) // two players joined
+                    let attr = Math.floor(Math.random() * 3) // [0, 3) = 3 attributes
+                    let compare = Math.floor(Math.random() * 2) // [0, 2) = 2 attributes
+                    io.sockets.in(room).emit('full', attr, compare) // two players joined
                     socket.to(room).emit('opponent-ready', [bp])
                     currentConnections[room].socket.to(room).emit('opponent-ready', [currentConnections[room].bp])
                 } else {
