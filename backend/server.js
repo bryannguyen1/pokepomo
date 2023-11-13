@@ -41,7 +41,9 @@ mongoose.connect(process.env.MONGO_URI)
         // app.listen(process.env.PORT, () => {
         //     console.log('connected to db & listening on port', process.env.PORT)
         // })
-        let currentConnections = {}
+        let playersOne = {}
+        let playersTwo = {}
+        let socketToRoom = {}
         const server = app.listen(process.env.PORT, () => {
             console.log('connected to db & listening on port', process.env.PORT)
         })
@@ -56,19 +58,23 @@ mongoose.connect(process.env.MONGO_URI)
                 const getRoom = io.sockets.adapter.rooms.get(room)
                 if (getRoom === undefined) { // no one has joined yet
                     socket.join(room)
-                    currentConnections[room] = {socket, bp}
+                    playersOne[room] = {socket, bp}
+                    socketToRoom[socket] = room
                     //socket.to(room).emit("receive-card", collection[0])
+                    io.sockets.emit('new-room', room)
                     setCards([bp])
-                } else if (getRoom.size == 1) { // one person is already in the room
+                } else if (getRoom.size === 1) { // one person is already in the room
                     socket.join(room)
                     //socket.to(room).emit("receive-card", collection[0])
                     //setCards(cards => [...cards, collection[0]])
+                    socketToRoom[socket] = room
+                    playersTwo[room] = {socket, bp}
                     setCards([bp])
                     let attr = Math.floor(Math.random() * 3) // [0, 3) = 3 attributes
                     let compare = Math.floor(Math.random() * 2) // [0, 2) = 2 attributes
                     io.sockets.in(room).emit('full', attr, compare) // two players joined
                     socket.to(room).emit('opponent-ready', [bp])
-                    currentConnections[room].socket.to(room).emit('opponent-ready', [currentConnections[room].bp])
+                    playersOne[room].socket.to(room).emit('opponent-ready', [playersOne[room].bp])
                 } else {
                     socket.emit('join-full')
                 }
@@ -78,8 +84,22 @@ mongoose.connect(process.env.MONGO_URI)
                 socket.to(room).emit('opponent-ready', cards)
                 //io.sockets.in(room).emit('opponent-ready', cards)
             })
+            socket.on('get-rooms', (setRooms) => {
+                const rooms = []
+                for (const [key, value] of Object.entries(playersOne)) {
+                    rooms.push(key)
+                }
+                setRooms(rooms)
+            })
             // socket.on('disconnect', function() {
-            //     delete currentConnections[client.id];
+            //     const r = socketToRoom[socket]
+            //     const getRoom = io.sockets.adapter.rooms.get(r)
+            //     if (getRoom.size === 2) {
+            //         if (playersOne[r].socket === socket) {
+            //             playersOne[r] = {socket: playersTwo[r].socket, bp: playersTwo[r].bp}
+            //         }
+            //         delete playersTwo[r]
+            //     }
             // });
         })
     })

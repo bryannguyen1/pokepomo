@@ -18,6 +18,7 @@ function Battle() {
     const { bp } = useBPContext()
     
     const [room, setRoom] = useState('')
+    const [rooms, setRooms] = useState([])
     const [error, setError] = useState(null)
     const [cards, setCards] = useState([])
     const [roomFull, setRoomFull] = useState(false)
@@ -29,10 +30,13 @@ function Battle() {
     const [opponentCards, setOpponentCards] = useState([])
 
     const winKeys = ['HP', 'Number', 'Pokedex']
-    const results = ['Loss', 'Win']
     const cmp = ['lesser', 'greater']
     
     useEffect(() => {
+        socket.emit('get-rooms', setRooms)
+        socket.on('new-room', (r) => {
+            setRooms(rooms => [...rooms, r])
+        })
         socket.on('join-full', () => {
             setError('Room is full')
         })
@@ -55,10 +59,10 @@ function Battle() {
         if (cards.length > 0 && opponentCards.length > 0 && compareNum > -1) {
             switch(keyNum) {
                 case 0:
-                    if (Number(cards[0].card.hp) == Number(opponentCards[0].card.hp)) {
+                    if (Number(cards[0].card.hp) === Number(opponentCards[0].card.hp)) {
                         setYouWin(2)
                     } else {
-                        if (compareNum == 0) {
+                        if (compareNum === 0) {
                             if (Number(cards[0].card.hp) > Number(opponentCards[0].card.hp)) {
                                 setYouWin(0)
                             } else {
@@ -74,10 +78,10 @@ function Battle() {
                     }
                     break
                 case 1:
-                    if (Number(cards[0].card.number) == Number(opponentCards[0].card.number)) {
+                    if (Number(cards[0].card.number) === Number(opponentCards[0].card.number)) {
                         setYouWin(2)
                     } else {
-                        if (compareNum == 0) {
+                        if (compareNum === 0) {
                             if (Number(cards[0].card.number) > Number(opponentCards[0].card.number)) {
                                 setYouWin(0)
                             } else {
@@ -93,10 +97,10 @@ function Battle() {
                     }
                     break
                 case 2:
-                    if (Number(cards[0].card.nationalPokedexNumbers[0]) == Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
+                    if (Number(cards[0].card.nationalPokedexNumbers[0]) === Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
                         setYouWin(2)
                     } else {
-                        if (compareNum == 0) {
+                        if (compareNum === 0) {
                             if (Number(cards[0].card.nationalPokedexNumbers[0]) > Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
                                 setYouWin(0)
                             } else {
@@ -135,9 +139,9 @@ function Battle() {
                 creditsDispatch({type: 'SET_CREDITS', payload: json.credits})
             }
         }
-        if (youWin == 1) {
+        if (youWin === 1) {
             addCredits(20)
-        } else if (youWin == 0) {
+        } else if (youWin === 0) {
             addCredits(-20)
         }
     }, [creditsDispatch, user.token, youWin])
@@ -161,34 +165,43 @@ function Battle() {
     return (
         <div>
             { !roomFull &&
-                <form className="create" onSubmit={handleSubmit}>
-                    <h3>Create a New Room</h3>
+                <div>
+                    <form className="create" onSubmit={handleSubmit}>
+                        <h3>Create a New Room</h3>
 
-                    <label>Room:</label>
-                    <input
-                        type="text"
-                        onChange={(e) => setRoom(e.target.value)}
-                        value={room}
-                    />
+                        <label>Room:</label>
+                        <input
+                            type="text"
+                            onChange={(e) => setRoom(e.target.value)}
+                            value={room}
+                        />
 
-                    <button>Join Room</button>
-                    {error && <div className="error">{error}</div>}
-                    <br /> <br />
-                    {/* {inRoom && <img src={collection[0].card.images.small} alt={collection[0].card.name} />} */}
-                    {/* { inRoom &&
-                        <div>
-                            {cards.map((card, i) => {
-                                return (
-                                    <span key={card.card.id} className="cardInCollection">
-                                        <img src={card.card.images.small} alt={card.card.name} />
-                                    </span>
-                                )
-                            })}
-                        </div>
-                    } */}
-                    
-                    
-                </form>
+                        <button>Join Room</button>
+                        {error && <div className="error">{error}</div>}
+                        <br /> <br />
+                        {/* {inRoom && <img src={collection[0].card.images.small} alt={collection[0].card.name} />} */}
+                        {/* { inRoom &&
+                            <div>
+                                {cards.map((card, i) => {
+                                    return (
+                                        <span key={card.card.id} className="cardInCollection">
+                                            <img src={card.card.images.small} alt={card.card.name} />
+                                        </span>
+                                    )
+                                })}
+                            </div>
+                        } */}
+                        
+                        
+                    </form>
+                    {rooms.map((r) => {
+                        return (
+                            <div key={r}>
+                                {r}
+                            </div>
+                        )
+                    })}
+                </div>
             }
             
             { !ready && roomFull && 
@@ -215,7 +228,7 @@ function Battle() {
 
                     { cards.length > 0 && opponentCards.length > 0 && compareNum > -1 && youWin > -1 &&
                         <h2>
-                            {(youWin == 1 ? 'Win' : youWin == 0 ? 'Loss' : 'Tie')} based on {cmp[compareNum]} {winKeys[keyNum]}
+                            {(youWin === 1 ? 'Win' : youWin === 0 ? 'Loss' : 'Tie')} based on {cmp[compareNum]} {winKeys[keyNum]}
                         </h2>
                     }
 
