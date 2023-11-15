@@ -159,6 +159,12 @@ function Battle() {
         setWaiting(true)
     }
 
+    function handleLeave() {
+        socket.emit('leave-room')
+        setWaiting(false)
+        setRoomFull(false)
+    }
+
     return (
         <div>
             { !waiting && !roomFull &&
@@ -195,7 +201,12 @@ function Battle() {
                         return (
                             <div key={r}>
                                 <span>{r}</span>
-                                <button onClick={() => socket.emit('join-room', r, bp, setCards)}>Join</button>
+                                <button onClick={() => {
+                                    socket.emit('join-room', r, bp, setCards)
+                                    setRoom(r)
+                                }}>
+                                    Join
+                                </button>
                             </div>
                         )
                     })}
@@ -242,6 +253,10 @@ function Battle() {
                         })}
                     </div>
                 </div>
+            }
+
+            { (waiting || roomFull) &&
+                <button onClick={handleLeave}>Leave</button>
             }
         </div>
     )

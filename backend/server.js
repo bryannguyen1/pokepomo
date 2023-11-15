@@ -79,6 +79,25 @@ mongoose.connect(process.env.MONGO_URI)
                     socket.emit('join-full')
                 }
             })
+            socket.on('leave-room', () => {
+                const r = socketToRoom[socket.id]
+                const getRoom = io.sockets.adapter.rooms.get(r)
+                if (r !== undefined) {
+                    if (getRoom.size === 1) { // player was alone
+                        console.log('DELEEEEE')
+                        io.sockets.emit('delete-room', r)
+                        delete(playersOne[r])
+                    } else { // player left from full room
+                        if (playersOne[r].socket === socket) {
+                            console.log('brrubrrub')
+                            playersOne[r] = {socket: playersTwo[r].socket, bp: playersTwo[r].bp}
+                        }
+                        //delete playersTwo[r]
+                        delete socketToRoom[socket]
+                    }
+                    socket.leave(r)
+                }
+            })
             socket.on('ready', (room, cards) => {
                 console.log('OPP RDYYYY', socket.id)
                 socket.to(room).emit('opponent-ready', cards)
