@@ -37,18 +37,20 @@ function Battle() {
         socket.on('new-room', (r) => {
             setRooms(rooms => [...rooms, r])
         })
+        socket.on('delete-room', (r) => {
+            console.log("DELEEEE")
+            setRooms(rooms.filter(item => item !== r))
+        })
         socket.on('join-full', () => {
             setError('Room is full')
         })
         socket.on('full', (attr, compare) => {
-            console.log('compare', compare)
             setKeyNum(attr)
             setCompareNum(compare)
             setRoomFull(true)
             //socket.emit('ready', room, cards)
         })
         socket.on('opponent-ready', (oppCards) => {
-            console.log('WE GOT AN OPPONENT')
             setOpponentCards(oppCards)
         })
     }, [])
@@ -153,7 +155,6 @@ function Battle() {
             setError('You must be logged in')
             return
         }
-        console.log("b4 join")
         socket.emit('join-room', room, bp, setCards)
     }
 
@@ -214,7 +215,6 @@ function Battle() {
                 <div className="battle">
                     <div>
                         {cards.map((card, i) => {
-                            console.log(card)
                             return (
                                 <span key={card.card.id} className="cardInCollection">
                                     <img src={card.card.images.small} alt={card.card.name} />

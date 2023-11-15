@@ -59,7 +59,7 @@ mongoose.connect(process.env.MONGO_URI)
                 if (getRoom === undefined) { // no one has joined yet
                     socket.join(room)
                     playersOne[room] = {socket, bp}
-                    socketToRoom[socket] = room
+                    socketToRoom[socket.id] = room
                     //socket.to(room).emit("receive-card", collection[0])
                     io.sockets.emit('new-room', room)
                     setCards([bp])
@@ -67,7 +67,7 @@ mongoose.connect(process.env.MONGO_URI)
                     socket.join(room)
                     //socket.to(room).emit("receive-card", collection[0])
                     //setCards(cards => [...cards, collection[0]])
-                    socketToRoom[socket] = room
+                    socketToRoom[socket.id] = room
                     playersTwo[room] = {socket, bp}
                     setCards([bp])
                     let attr = Math.floor(Math.random() * 3) // [0, 3) = 3 attributes
@@ -91,16 +91,24 @@ mongoose.connect(process.env.MONGO_URI)
                 }
                 setRooms(rooms)
             })
-            // socket.on('disconnect', function() {
-            //     const r = socketToRoom[socket]
-            //     const getRoom = io.sockets.adapter.rooms.get(r)
-            //     if (getRoom.size === 2) {
-            //         if (playersOne[r].socket === socket) {
-            //             playersOne[r] = {socket: playersTwo[r].socket, bp: playersTwo[r].bp}
-            //         }
-            //         delete playersTwo[r]
-            //     }
-            // });
+            socket.on('disconnect', () =>{
+                const r = socketToRoom[socket.id]
+                const getRoom = io.sockets.adapter.rooms.get(r)
+                if (r !== undefined) {
+                    if (getRoom === undefined) { // player was alone
+                        console.log('DELEEEEE')
+                        io.sockets.emit('delete-room', r)
+                        delete(playersOne[r])
+                    } else { // player left from full room
+                        if (playersOne[r].socket === socket) {
+                            console.log('brrubrrub')
+                            playersOne[r] = {socket: playersTwo[r].socket, bp: playersTwo[r].bp}
+                        }
+                        //delete playersTwo[r]
+                        delete socketToRoom[socket]
+                    }
+                }
+            });
         })
     })
     .catch((error) => {
