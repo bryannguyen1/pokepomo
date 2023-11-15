@@ -22,10 +22,10 @@ function Battle() {
     const [error, setError] = useState(null)
     const [cards, setCards] = useState([])
     const [roomFull, setRoomFull] = useState(false)
-    const [ready, setReady] = useState(false)
     const [youWin, setYouWin] = useState(-1)
     const [keyNum, setKeyNum] = useState(-1)
     const [compareNum, setCompareNum] = useState(-1)
+    const [waiting, setWaiting] = useState(false)
 
     const [opponentCards, setOpponentCards] = useState([])
 
@@ -156,16 +156,12 @@ function Battle() {
             return
         }
         socket.emit('join-room', room, bp, setCards)
-    }
-
-    function onClickReady() {
-        setReady(true)
-        socket.emit('ready', room, cards)
+        setWaiting(true)
     }
 
     return (
         <div>
-            { !roomFull &&
+            { !waiting && !roomFull &&
                 <div>
                     <form className="create" onSubmit={handleSubmit}>
                         <h3>Create a New Room</h3>
@@ -198,16 +194,17 @@ function Battle() {
                     {rooms.map((r) => {
                         return (
                             <div key={r}>
-                                {r}
+                                <span>{r}</span>
+                                <button onClick={() => socket.emit('join-room', r, bp, setCards)}>Join</button>
                             </div>
                         )
                     })}
                 </div>
             }
             
-            { !ready && roomFull && 
+            { waiting && !roomFull &&
                 <div>
-                    <button onClick={onClickReady}>Ready</button>
+                    <h3>Waiting</h3>    
                 </div>
             }
 
