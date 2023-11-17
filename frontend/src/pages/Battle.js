@@ -1,13 +1,13 @@
 import { io } from 'socket.io-client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuthContext } from '../hooks/useAuthContext'
 import { useCreditsContext } from "../hooks/useCreditsContext"
 import { useBPContext } from '../hooks/useBPContext'
 
-const socket = io(`${process.env.REACT_APP_BACKEND}`)
-socket.on("connect", () => {
-    console.log(`You connected with id: ${socket.id}`)
-})
+// const socket = io(`${process.env.REACT_APP_BACKEND}`)
+// socket.on("connect", () => {
+//     console.log(`You connected with id: ${socket.id}`)
+// })
 // socket.on("receive-card", card => {
 //     console.log("RECEIVED CARD")
 // })
@@ -32,35 +32,60 @@ function Battle() {
 
     const [opponentCards, setOpponentCards] = useState([])
 
+    const [socket, setSocket] = useState(-1)
+
+    const keyNumRef = useRef()
+    const compareNumRef = useRef()
+    keyNumRef.current = keyNum
+    compareNumRef.current = compareNum
+
     const winKeys = ['HP', 'Number', 'Pokedex']
     const cmp = ['lesser', 'greater']
     
     useEffect(() => {
-        socket.emit('get-rooms', setRooms)
-        socket.on('new-room', (r) => {
-            setRooms(rooms => [...rooms, r])
-        })
-        socket.on('delete-room', (r) => {
-            console.log("DELEEEE")
-            setRooms(rooms.filter(item => item !== r))
-        })
-        socket.on('join-full', () => {
-            setError('Room is full')
-        })
-        socket.on('full', (attr, compare) => {
-            setKeyNum(attr)
-            setCompareNum(compare)
-            setRoomFull(true)
-            setRematchWaiting(false)
-            //socket.emit('ready', room, cards)
-        })
-        socket.on('opponent-ready', (oppCards) => {
-            setOpponentCards(oppCards)
-        })
-        socket.on('rematch-req', () => {
-            setRematchPending(true)
-        })
+        setSocket(io(`${process.env.REACT_APP_BACKEND}`))
     }, [])
+
+    useEffect(() => {
+        console.log('SOCKET HAS CHANGED')
+        if (socket !== -1) {
+            console.log('SOCKET WE IN')
+            socket.on("connect", () => {
+                console.log(`You connected with id: ${socket.id}`)
+            })
+            socket.emit('get-rooms', setRooms)
+            socket.on('new-room', (r) => {
+                setRooms(rooms => [...rooms, r])
+            })
+            socket.on('delete-room', (r) => {
+                console.log("DELEEEE")
+                setRooms(rooms.filter(item => item !== r))
+            })
+            socket.on('join-full', () => {
+                setError('Room is full')
+            })
+            socket.on('full', (attr, compare) => {
+                if (keyNumRef.current === attr && compareNumRef.current === compare) {
+                    setMatchRefresh(matchRefresh => !matchRefresh)
+                }
+                setKeyNum(attr)
+                setCompareNum(compare)
+                setRoomFull(true)
+                setRematchWaiting(false)
+                //socket.emit('ready', room, cards)
+            })
+            socket.on('opponent-ready', (oppCards) => {
+                setOpponentCards(oppCards)
+            })
+            socket.on('rematch-req', () => {
+                setRematchPending(true)
+            })
+            return function cleanup() {
+                console.log('socket disconnected')
+                socket.disconnect()
+            }
+        }
+    }, [socket])
 
     useEffect(() => {   // game logic
         // if (cards.length > 0 && opponentCards.length > 0)
