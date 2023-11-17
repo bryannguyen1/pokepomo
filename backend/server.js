@@ -79,6 +79,16 @@ mongoose.connect(process.env.MONGO_URI)
                     socket.emit('join-full')
                 }
             })
+            socket.on('rematch', () => {
+                room = socketToRoom[socket.id]
+                let attr = Math.floor(Math.random() * 3) // [0, 3) = 3 attributes
+                let compare = Math.floor(Math.random() * 2) // [0, 2) = 2 attributes
+                io.sockets.in(room).emit('full', attr, compare) // two players joined
+            })
+            socket.on('rematch-req', () => {
+                const r = socketToRoom[socket.id]
+                socket.to(r).emit('rematch-req')
+            })
             socket.on('leave-room', () => {
                 const r = socketToRoom[socket.id]
                 const getRoom = io.sockets.adapter.rooms.get(r)

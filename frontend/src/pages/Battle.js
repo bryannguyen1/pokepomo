@@ -26,6 +26,9 @@ function Battle() {
     const [keyNum, setKeyNum] = useState(-1)
     const [compareNum, setCompareNum] = useState(-1)
     const [waiting, setWaiting] = useState(false)
+    const [rematchWaiting, setRematchWaiting] = useState(false)
+    const [rematchPending, setRematchPending] = useState(false)
+    const [matchRefresh, setMatchRefresh] = useState(false)
 
     const [opponentCards, setOpponentCards] = useState([])
 
@@ -48,17 +51,21 @@ function Battle() {
             setKeyNum(attr)
             setCompareNum(compare)
             setRoomFull(true)
+            setRematchWaiting(false)
             //socket.emit('ready', room, cards)
         })
         socket.on('opponent-ready', (oppCards) => {
             setOpponentCards(oppCards)
         })
+        socket.on('rematch-req', () => {
+            setRematchPending(true)
+        })
     }, [])
 
     useEffect(() => {   // game logic
         // if (cards.length > 0 && opponentCards.length > 0)
-        console.log('compareNum', compareNum)
         if (cards.length > 0 && opponentCards.length > 0 && compareNum > -1) {
+            console.log('we comparin', compareNum)
             switch(keyNum) {
                 case 0:
                     if (Number(cards[0].card.hp) === Number(opponentCards[0].card.hp)) {
@@ -78,6 +85,7 @@ function Battle() {
                             }
                         }
                     }
+                    setMatchRefresh(matchRefresh => !matchRefresh)
                     break
                 case 1:
                     if (Number(cards[0].card.number) === Number(opponentCards[0].card.number)) {
@@ -97,6 +105,7 @@ function Battle() {
                             }
                         }
                     }
+                    setMatchRefresh(matchRefresh => !matchRefresh)
                     break
                 case 2:
                     if (Number(cards[0].card.nationalPokedexNumbers[0]) === Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
@@ -116,6 +125,7 @@ function Battle() {
                             }
                         }
                     }
+                    setMatchRefresh(matchRefresh => !matchRefresh)
                     break
                 default:
                     break
@@ -146,7 +156,7 @@ function Battle() {
         } else if (youWin === 0) {
             addCredits(-20)
         }
-    }, [creditsDispatch, user.token, youWin])
+    }, [creditsDispatch, user.token, matchRefresh])
 
     function handleSubmit(e) {
         e.preventDefault()
@@ -163,6 +173,16 @@ function Battle() {
         socket.emit('leave-room')
         setWaiting(false)
         setRoomFull(false)
+    }
+
+    function handleRematch() {
+        if (rematchPending) {
+            socket.emit('rematch')
+            setRematchPending(false)
+        } else {
+            socket.emit('rematch-req')
+            setRematchWaiting(true)
+        } 
     }
 
     return (
@@ -255,8 +275,20 @@ function Battle() {
                 </div>
             }
 
+            { rematchWaiting &&
+                <p>Waiting for opponent to respond...</p>
+            }
+
+            { rematchPending &&
+                <p>Opponent waiting for rematch...</p>
+            }
+
             { (waiting || roomFull) &&
                 <button onClick={handleLeave}>Leave</button>
+            }
+
+            { roomFull &&
+                <button onClick={handleRematch}>Rematch</button>
             }
         </div>
     )
