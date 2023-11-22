@@ -36,8 +36,10 @@ function Battle() {
 
     const keyNumRef = useRef()
     const compareNumRef = useRef()
+    const youWinRef = useRef()
     keyNumRef.current = keyNum
     compareNumRef.current = compareNum
+    youWinRef.current = youWin
 
     const winKeys = ['HP', 'Number', 'Pokedex']
     const cmp = ['lesser', 'greater']
@@ -58,8 +60,7 @@ function Battle() {
                 setRooms(rooms => [...rooms, r])
             })
             socket.on('delete-room', (r) => {
-                console.log("DELEEEE")
-                setRooms(rooms.filter(item => item !== r))
+                setRooms(rooms => rooms.filter(item => item !== r))
             })
             socket.on('join-full', () => {
                 setError('Room is full')
@@ -176,9 +177,9 @@ function Battle() {
                 creditsDispatch({type: 'SET_CREDITS', payload: json.credits})
             }
         }
-        if (youWin === 1) {
+        if (youWinRef.current === 1) {
             addCredits(20)
-        } else if (youWin === 0) {
+        } else if (youWinRef.current === 0) {
             addCredits(-20)
         }
     }, [creditsDispatch, user.token, matchRefresh])
