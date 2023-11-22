@@ -27,7 +27,16 @@ async function createCard(req, res) {
 
     try {
         const user_id = req.user._id
-        const ccard = await Card.create({card, user_id})
+        const num = Math.ceil(Math.random() * 2000)
+        let rarity = 'C'
+        if (num > 0 && num < 10) {
+            rarity = 'S'
+        } else if (num > 9 && num < 100) {
+            rarity ='A'
+        } else if (num > 99 && num < 1000) {
+            rarity ='B'
+        }
+        const ccard = await Card.create({card, user_id, rarity})
         res.status(200).json(ccard)
     } catch (error) {
         res.status(400).json({error: error.message})

@@ -28,11 +28,12 @@ function Collection() {
     // TODO: DO SOMETHING ABOUT DUPES BC KEY
     return (
         <div>
-            <div className="cardsContainer">
+            <div className="cardsContainer" style={{display: 'flex', flexWrap: 'wrap'}}>
                 {collection.map((card, i) => {
                     return (
                         <span key={card.card.id} className="cardInCollection">
-                            <img src={card.card.images.small} alt={card.card.name} />
+                            <h3>{card.rarity}</h3>
+                            <div><img src={card.card.images.small} alt={card.card.name} /></div>
                         </span>
                     )
                 })}

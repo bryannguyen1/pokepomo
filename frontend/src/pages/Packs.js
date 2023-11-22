@@ -9,6 +9,7 @@ function Packs() {
     const [cards, setCards] = useState([])
     const [gacha, setGacha] = useState([])
     const [gachaLoaded, setGachaLoaded] = useState(false)
+    const [rarity, setRarity] = useState('F')
 
     const { user } = useAuthContext()
     const { credits, dispatch } = useCreditsContext()
@@ -41,6 +42,7 @@ function Packs() {
         
         if (response.ok) {
             collectionDispatch({type: 'SET_COLLECTION', payload: [...collection, json]})
+            setRarity(json.rarity)
         }
     }
 
@@ -103,7 +105,8 @@ function Packs() {
                     {cards.map((card, i) => {
                         return (
                             <span key={card.id}>
-                                <img src={card.images.small} alt={card.name} />
+                                <h3>{rarity}</h3>
+                                <div><img src={card.images.small} alt={card.name} /></div>
                             </span>
                         )
                     })}
