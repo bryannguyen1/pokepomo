@@ -17,7 +17,7 @@ function Packs() {
 
     useEffect(() => {
         async function fetchCards() {
-            let pokeURL = 'https://api.pokemontcg.io/v2/cards?q=set.name:"Diamond+%26+Pearl"+supertype:"Pokemon"'
+            let pokeURL = 'https://api.pokemontcg.io/v2/cards?q=set.name:%22Diamond+%26+Pearl%22+supertype:%22Pokemon%22+name:%22Dialga%22' //'https://api.pokemontcg.io/v2/cards?q=set.name:"Diamond+%26+Pearl"+supertype:"Pokemon"'
             //let pokeURL = 'https://api.pokemontcg.io/v2/cards?q=set.name:"Mcdonald%27s+Collection"'
             await fetch(pokeURL)
             .then(response => response.json())
@@ -41,8 +41,13 @@ function Packs() {
         const json = await response.json()
         
         if (response.ok) {
-            collectionDispatch({type: 'SET_COLLECTION', payload: [...collection, json]})
-            setRarity(json.rarity)
+            console.log('json isss', json)
+            if (json.card.rarity === json.origRarity) {
+                collectionDispatch({type: 'SET_COLLECTION', payload: [...collection, json.card]})
+            } else {
+                collectionDispatch({type: 'SET_COLLECTION', payload: [...collection.filter(c => !(c._id in json.copyIDs)), json.card]})
+            }
+            setRarity(json.origRarity)
         }
     }
 

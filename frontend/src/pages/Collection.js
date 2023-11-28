@@ -1,17 +1,18 @@
 import { useEffect } from 'react'
 import { useCollectionContext } from '../hooks/useCollectionContext'
+//import { useAuthContext } from '../hooks/useAuthContext'
 
 function Collection() {
     // cards are OBJECTS containing meta data
     // to get the actual card, use cards[i].card
     //const [cards, setCards] = useState([])
     
-    // const {user} = useAuthContext()
+    //const { user } = useAuthContext()
     const { collection } = useCollectionContext()
 
     useEffect(() => {
         // async function fetchCards() {
-        //     const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/cards', {
+        //     const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/cards`, {
         //         headers: {
         //             'Authorization': `Bearer ${user.token}`
         //         }
