@@ -1,5 +1,6 @@
 const Card = require('../models/cardModel')
 const mongoose = require('mongoose')
+const ObjectId = require('mongodb').ObjectId;
 
 async function getCard(req, res) {
     const user_id = req.user._id
@@ -52,19 +53,40 @@ async function createCard(req, res) {
                 rarity = 'A'
             } else if (rarity === 'A') {
                 rarity = 'S'
+                break
             }
             copy = await Card.findOne({user_id, card, rarity})
         }
-        console.log('rarity', rarity)
-        const ccard = await Card.create({card, user_id, rarity})
+
+        const ccard = await Card.create({card, user_id, rarity, level: 1, exp: 0})
         res.status(200).json({card: ccard, origRarity, copyIDs})
     } catch (error) {
         res.status(400).json({error: error.message})
     }
 }
 
+async function updateExp(req, res) {
+    const { cardID, exp } = req.body
+    console.log(cardID, exp)
+    let o_id =  new ObjectId(cardID)
+    const card = await Card.findOne(o_id)
+
+    if (!card) {
+        return res.status(404).json({error: 'Card does not exist'})
+    }
+
+    let ccard = {}
+    if (card.exp + exp > card.level * 100) {
+        ccard = await Card.findOneAndUpdate(o_id, {$inc: {level: 1}, exp: card.exp + exp - card.level * 100}, {new: true})
+    } else {
+        ccard = await Card.findOneAndUpdate(o_id, {$inc: {exp}}, {new: true})
+    }
+    res.status(200).json(ccard)
+}
+
 module.exports = {
     getCard,
     getCards,
     createCard,
+    updateExp
 }

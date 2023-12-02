@@ -35,6 +35,8 @@ function Collection() {
                         <span key={card.card.id} className="cardInCollection">
                             <h3>{card.rarity}</h3>
                             <div><img src={card.card.images.small} alt={card.card.name} /></div>
+                            <h4>Level: {card.level}</h4>
+                            <h4>EXP: {card.exp}/{card.level * 100}</h4>
                         </span>
                     )
                 })}

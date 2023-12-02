@@ -162,12 +162,12 @@ function Battle() {
     useEffect(() => {
         async function addCredits(num) {
             const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/credits`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user.token}`
-            },
-            body: JSON.stringify({addCredits: num})
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                },
+                body: JSON.stringify({addCredits: num})
             })
             const json = await response.json()
             
@@ -177,11 +177,26 @@ function Battle() {
                 creditsDispatch({type: 'SET_CREDITS', payload: json.credits})
             }
         }
-        if (youWinRef.current === 1) {
-            addCredits(20)
-        } else if (youWinRef.current === 0) {
-            addCredits(-20)
+        async function addExp(num) {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/cards/exp`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                },
+                body: JSON.stringify({cardID: bp.card_id, exp: num})
+            })
+            // if (response.ok) {
+            //     creditsDispatch({type: 'SET_CREDITS', payload: json.credits})
+            // }
         }
+        if (youWinRef.current === 1) {
+            addCredits(10)
+            addExp(10)
+        }
+        // else if (youWinRef.current === 0) {
+        //     addCredits(-20)
+        // }
     }, [creditsDispatch, user.token, matchRefresh])
 
     function handleSubmit(e) {

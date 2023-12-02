@@ -14,6 +14,14 @@ const cardSchema = new Schema({
     rarity: {
         type: String,
         required: true
+    },
+    level: {
+        type: Number,
+        required: true
+    },
+    exp: {
+        type: Number,
+        required: true
     }
 }, { timestamps: true })
 

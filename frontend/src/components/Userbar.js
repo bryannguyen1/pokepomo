@@ -56,7 +56,7 @@ function Userbar() {
         console.log('ccard.card', ccard.card)
         const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/battlepokemon`, {
             method: 'PATCH',
-            body: JSON.stringify({card: ccard.card}),
+            body: JSON.stringify({card: ccard.card, card_id: ccard._id}),
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${user.token}`

@@ -17,7 +17,8 @@ function Packs() {
 
     useEffect(() => {
         async function fetchCards() {
-            let pokeURL = 'https://api.pokemontcg.io/v2/cards?q=set.name:%22Diamond+%26+Pearl%22+supertype:%22Pokemon%22+name:%22Dialga%22' //'https://api.pokemontcg.io/v2/cards?q=set.name:"Diamond+%26+Pearl"+supertype:"Pokemon"'
+            //let pokeURL = 'https://api.pokemontcg.io/v2/cards?q=set.name:%22Diamond+%26+Pearl%22+supertype:%22Pokemon%22+name:%22Dialga%22'
+            let pokeURL = 'https://api.pokemontcg.io/v2/cards?q=set.name:"Diamond+%26+Pearl"+supertype:"Pokemon"'
             //let pokeURL = 'https://api.pokemontcg.io/v2/cards?q=set.name:"Mcdonald%27s+Collection"'
             await fetch(pokeURL)
             .then(response => response.json())

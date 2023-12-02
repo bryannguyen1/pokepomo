@@ -10,6 +10,10 @@ const battlePokemonSchema = new Schema({
     user_id: {
         type: String,
         required: true
+    },
+    card_id: {
+        type: String,
+        required: true
     }
 }, { timestamps: true })
 
