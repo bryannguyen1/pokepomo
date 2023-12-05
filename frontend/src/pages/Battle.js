@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useAuthContext } from '../hooks/useAuthContext'
 import { useCreditsContext } from "../hooks/useCreditsContext"
 import { useBPContext } from '../hooks/useBPContext'
+import { useCollectionContext } from '../hooks/useCollectionContext'
 
 // const socket = io(`${process.env.REACT_APP_BACKEND}`)
 // socket.on("connect", () => {
@@ -14,6 +15,7 @@ import { useBPContext } from '../hooks/useBPContext'
 
 function Battle() {
     const { user } = useAuthContext()
+    const { collection, dispatch: collectionDispatch } = useCollectionContext()
     const { dispatch: creditsDispatch } = useCreditsContext()
     const { bp } = useBPContext()
     
@@ -37,9 +39,11 @@ function Battle() {
     const keyNumRef = useRef()
     const compareNumRef = useRef()
     const youWinRef = useRef()
+    const collectionRef = useRef()
     keyNumRef.current = keyNum
     compareNumRef.current = compareNum
     youWinRef.current = youWin
+    collectionRef.current = collection
 
     const winKeys = ['HP', 'Number', 'Pokedex']
     const cmp = ['lesser', 'greater']
@@ -186,9 +190,17 @@ function Battle() {
                 },
                 body: JSON.stringify({cardID: bp.card_id, exp: num})
             })
-            // if (response.ok) {
-            //     creditsDispatch({type: 'SET_CREDITS', payload: json.credits})
-            // }
+            const json = await response.json()
+            if (response.ok) {
+                const updatedCollection = collectionRef.current.map((c) => {
+                    if (c._id === bp.card_id) {
+                        c.exp = json.exp
+                        c.level = json.level
+                    }
+                    return c
+                })
+                collectionDispatch({type: 'SET_COLLECTION', payload: updatedCollection})
+            }
         }
         if (youWinRef.current === 1) {
             addCredits(10)
@@ -197,7 +209,7 @@ function Battle() {
         // else if (youWinRef.current === 0) {
         //     addCredits(-20)
         // }
-    }, [creditsDispatch, user.token, matchRefresh])
+    }, [creditsDispatch, user.token, matchRefresh, bp, collectionDispatch]) // bp unwanted?
 
     function handleSubmit(e) {
         e.preventDefault()
