@@ -43,9 +43,31 @@ async function createCard(req, res) {
         let copy = await Card.findOne({user_id, card, rarity})
         let copyIDs = {}
         const origRarity = rarity
+        let level = 1
+        let exp = 0
 
         while (copy) {
+            console.log('found copy')
             copyIDs[copy._id] = 1
+            // combine exp of copies
+            if (level === 1) {
+                level = copy.level
+                exp = copy.exp
+            } else {
+                for (let i = 1; i < copy.level; i++) {
+                    if (i * 100 + exp > level * 100) {
+                        exp += i * 100 - level * 100
+                        level += 1
+                    } else {
+                        exp += i * 100
+                    }
+                }
+                if (exp + copy.exp > level * 100) {
+                    exp += copy.exp - level * 100
+                } else {
+                    exp += copy.exp
+                }
+            }
             await Card.findOneAndDelete({user_id, card, rarity})
             if (rarity === 'C') {
                 rarity = 'B'
@@ -58,7 +80,7 @@ async function createCard(req, res) {
             copy = await Card.findOne({user_id, card, rarity})
         }
 
-        const ccard = await Card.create({card, user_id, rarity, level: 1, exp: 0})
+        const ccard = await Card.create({card, user_id, rarity, level, exp})
         res.status(200).json({card: ccard, origRarity, copyIDs})
     } catch (error) {
         res.status(400).json({error: error.message})
@@ -76,12 +98,17 @@ async function updateExp(req, res) {
     }
 
     let ccard = {}
+    let update = true
     if (card.exp + exp > card.level * 100) {
-        ccard = await Card.findOneAndUpdate(o_id, {$inc: {level: 1}, exp: card.exp + exp - card.level * 100}, {new: true})
+        if (card.level < 100) {
+            ccard = await Card.findOneAndUpdate(o_id, {$inc: {level: 1}, exp: card.exp + exp - card.level * 100}, {new: true})
+        } else {
+            update = false
+        }
     } else {
         ccard = await Card.findOneAndUpdate(o_id, {$inc: {exp}}, {new: true})
     }
-    res.status(200).json(ccard)
+    res.status(200).json({card: ccard, update})
 }
 
 module.exports = {

@@ -191,11 +191,11 @@ function Battle() {
                 body: JSON.stringify({cardID: bp.card_id, exp: num})
             })
             const json = await response.json()
-            if (response.ok) {
+            if (response.ok && json.update) {
                 const updatedCollection = collectionRef.current.map((c) => {
                     if (c._id === bp.card_id) {
-                        c.exp = json.exp
-                        c.level = json.level
+                        c.exp = json.card.exp
+                        c.level = json.card.level
                     }
                     return c
                 })
