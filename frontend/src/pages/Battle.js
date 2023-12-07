@@ -40,10 +40,12 @@ function Battle() {
     const compareNumRef = useRef()
     const youWinRef = useRef()
     const collectionRef = useRef()
+    const bpRef = useRef()
     keyNumRef.current = keyNum
     compareNumRef.current = compareNum
     youWinRef.current = youWin
     collectionRef.current = collection
+    bpRef.current = bp
 
     const winKeys = ['HP', 'Number', 'Pokedex']
     const cmp = ['lesser', 'greater']
@@ -188,12 +190,12 @@ function Battle() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${user.token}`
                 },
-                body: JSON.stringify({cardID: bp.card_id, exp: num})
+                body: JSON.stringify({cardID: bpRef.current.card_id, exp: num})
             })
             const json = await response.json()
             if (response.ok && json.update) {
                 const updatedCollection = collectionRef.current.map((c) => {
-                    if (c._id === bp.card_id) {
+                    if (c._id === bpRef.current.card_id) {
                         c.exp = json.card.exp
                         c.level = json.card.level
                     }
@@ -209,7 +211,7 @@ function Battle() {
         // else if (youWinRef.current === 0) {
         //     addCredits(-20)
         // }
-    }, [creditsDispatch, user.token, matchRefresh, bp, collectionDispatch]) // bp unwanted?
+    }, [creditsDispatch, user.token, matchRefresh, collectionDispatch])
 
     function handleSubmit(e) {
         e.preventDefault()

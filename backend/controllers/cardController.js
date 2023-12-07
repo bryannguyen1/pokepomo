@@ -29,7 +29,7 @@ async function createCard(req, res) {
     try {
         const user_id = req.user._id
         const num = Math.floor(Math.random() * 2001)
-        let rarity = 'C'
+        let rarity = 'S'
         if (num == 0) {
             rarity = 'SS'
         } else if (num > 0 && num < 41) {
@@ -40,14 +40,14 @@ async function createCard(req, res) {
             rarity = 'B'
         }
 
-        let copy = await Card.findOne({user_id, card, rarity})
+        let copy = await Card.findOne({user_id, 'card.name': card.name, rarity})
         let copyIDs = {}
         const origRarity = rarity
         let level = 1
         let exp = 0
+        let copyS = false
 
-        while (copy) {
-            console.log('found copy')
+        while (copy && rarity !== 'S') {
             copyIDs[copy._id] = 1
             // combine exp of copies
             if (level === 1) {
@@ -75,13 +75,18 @@ async function createCard(req, res) {
                 rarity = 'A'
             } else if (rarity === 'A') {
                 rarity = 'S'
-                break
             }
             copy = await Card.findOne({user_id, card, rarity})
         }
 
-        const ccard = await Card.create({card, user_id, rarity, level, exp})
-        res.status(200).json({card: ccard, origRarity, copyIDs})
+        copy = await Card.findOne({user_id, 'card.name': card.name, rarity})
+        if (rarity === 'S' && copy) {
+            copyS = true
+            res.status(200).json({copyS, origRarity})
+        } else {
+            const ccard = await Card.create({card, user_id, rarity, level, exp})
+            res.status(200).json({card: ccard, origRarity, copyIDs, copyS})
+        }
     } catch (error) {
         res.status(400).json({error: error.message})
     }

@@ -42,13 +42,16 @@ function Packs() {
         const json = await response.json()
         
         if (response.ok) {
-            console.log('json isss', json)
+            setRarity(json.origRarity)
+            if (json.copyS) {
+                addCredits(100)
+                return
+            }
             if (json.card.rarity === json.origRarity) {
                 collectionDispatch({type: 'SET_COLLECTION', payload: [...collection, json.card]})
             } else {
                 collectionDispatch({type: 'SET_COLLECTION', payload: [...collection.filter(c => !(c._id in json.copyIDs)), json.card]})
             }
-            setRarity(json.origRarity)
         }
     }
 
