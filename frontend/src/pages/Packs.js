@@ -30,7 +30,6 @@ function Packs() {
 
     // add card to DB, used in handleClick functions
     async function addCard(card) {
-        console.log("card", card)
         const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/cards`, {
             method: 'POST',
             body: JSON.stringify({card}),

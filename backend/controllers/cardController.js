@@ -29,7 +29,7 @@ async function createCard(req, res) {
     try {
         const user_id = req.user._id
         const num = Math.floor(Math.random() * 2001)
-        let rarity = 'S'
+        let rarity = 'C'
         if (num == 0) {
             rarity = 'SS'
         } else if (num > 0 && num < 41) {

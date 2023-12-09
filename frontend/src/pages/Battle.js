@@ -49,7 +49,7 @@ function Battle() {
 
     const winKeys = ['HP', 'Number', 'Pokedex']
     const cmp = ['lesser', 'greater']
-    
+
     useEffect(() => {
         setSocket(io(`${process.env.REACT_APP_BACKEND}`))
     }, [])
@@ -96,72 +96,30 @@ function Battle() {
 
     useEffect(() => {   // game logic
         // if (cards.length > 0 && opponentCards.length > 0)
+        // const traits = ['hp', 'number', 'nationalPokedexNumbers[0]']
+        
         if (cards.length > 0 && opponentCards.length > 0 && compareNum > -1) {
             console.log('we comparin', compareNum)
-            switch(keyNum) {
-                case 0:
-                    if (Number(cards[0].card.hp) === Number(opponentCards[0].card.hp)) {
-                        setYouWin(2)
+            const traits = [Number(cards[0].card.hp), Number(cards[0].card.number), Number(cards[0].card.nationalPokedexNumbers[0])]
+            const oppTraits = [Number(opponentCards[0].card.hp), Number(opponentCards[0].card.number), Number(opponentCards[0].card.nationalPokedexNumbers[0])]
+            if (traits[keyNum] === oppTraits[keyNum]) {
+                setYouWin(2)
+            } else {
+                if (compareNum === 0) {
+                    if (traits[keyNum] > oppTraits[keyNum]) {
+                        setYouWin(0)
                     } else {
-                        if (compareNum === 0) {
-                            if (Number(cards[0].card.hp) > Number(opponentCards[0].card.hp)) {
-                                setYouWin(0)
-                            } else {
-                                setYouWin(1)
-                            }
-                        } else {
-                            if (Number(cards[0].card.hp) > Number(opponentCards[0].card.hp)) {
-                                setYouWin(1)
-                            } else {
-                                setYouWin(0)
-                            }
-                        }
+                        setYouWin(1)
                     }
-                    setMatchRefresh(matchRefresh => !matchRefresh)
-                    break
-                case 1:
-                    if (Number(cards[0].card.number) === Number(opponentCards[0].card.number)) {
-                        setYouWin(2)
+                } else {
+                    if (traits[keyNum] > oppTraits[keyNum]) {
+                        setYouWin(1)
                     } else {
-                        if (compareNum === 0) {
-                            if (Number(cards[0].card.number) > Number(opponentCards[0].card.number)) {
-                                setYouWin(0)
-                            } else {
-                                setYouWin(1)
-                            }
-                        } else {
-                            if (Number(cards[0].card.number) > Number(opponentCards[0].card.number)) {
-                                setYouWin(1)
-                            } else {
-                                setYouWin(0)
-                            }
-                        }
+                        setYouWin(0)
                     }
-                    setMatchRefresh(matchRefresh => !matchRefresh)
-                    break
-                case 2:
-                    if (Number(cards[0].card.nationalPokedexNumbers[0]) === Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
-                        setYouWin(2)
-                    } else {
-                        if (compareNum === 0) {
-                            if (Number(cards[0].card.nationalPokedexNumbers[0]) > Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
-                                setYouWin(0)
-                            } else {
-                                setYouWin(1)
-                            }
-                        } else {
-                            if (Number(cards[0].card.nationalPokedexNumbers[0]) > Number(opponentCards[0].card.nationalPokedexNumbers[0])) {
-                                setYouWin(1)
-                            } else {
-                                setYouWin(0)
-                            }
-                        }
-                    }
-                    setMatchRefresh(matchRefresh => !matchRefresh)
-                    break
-                default:
-                    break
+                }
             }
+            setMatchRefresh(matchRefresh => !matchRefresh)
         }
     }, [cards, keyNum, compareNum, opponentCards])
 
